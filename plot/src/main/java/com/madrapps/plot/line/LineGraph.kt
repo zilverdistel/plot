@@ -5,12 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -63,6 +58,7 @@ fun LineGraph(
     val paddingRight = plot.paddingRight
     val horizontalGap = plot.horizontalExtraSpace
     val isZoomAllowed = plot.isZoomAllowed
+    val isStartAtEnd = plot.isScrollToEnd
 
     val globalXScale = 1f
     val globalYScale = 1f
@@ -131,11 +127,18 @@ fun LineGraph(
                         getMaxElementInYAxis(yAxisScale, plot.yAxis.steps)
                     val yOffset = ((yBottom - paddingTop.toPx()) / maxElementInYAxis) * globalYScale
 
+
+                    // Added to support starting at the end of the chart
+                    val firstRun = maxScrollOffset.value == 0f
+
                     val xLastPoint =
                         (xMax - xMin) * xOffset * (1 / xUnit) + xLeft + paddingRight.toPx() + horizontalGap.toPx()
                     maxScrollOffset.value = if (xLastPoint > size.width) {
                         xLastPoint - size.width
                     } else 0f
+
+                    // Added to support starting at the end of the chart
+                    if (isStartAtEnd && firstRun) offset.value = maxScrollOffset.value
 
                     val dragLocks = mutableMapOf<LinePlot.Line, Pair<DataPoint, Offset>>()
 
